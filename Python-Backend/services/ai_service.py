@@ -1,8 +1,8 @@
 import json
 import os
-import time
 
 from google import genai
+from google.genai import types
 from dotenv import load_dotenv
 
 
@@ -18,7 +18,10 @@ print(
 
 
 client = genai.Client(
-    api_key=api_key
+    api_key=api_key,
+    http_options=types.HttpOptions(
+        timeout=120000
+    )
 )
 
 
@@ -62,46 +65,37 @@ Python code:
 {code}
 """
 
-    for attempt in range(3):
+    try:
 
-        try:
+        response = client.models.generate_content(
+            model="gemini-3.5-flash",
+            contents=prompt
+        )
 
-            response = client.models.generate_content(
-                model="gemini-3.5-flash",
-                contents=prompt
-            )
+        raw_response = response.text.strip()
 
-            raw_response = response.text.strip()
+        print("GEMINI RESPONSE:")
+        print(raw_response)
 
-            print("GEMINI RESPONSE:")
-            print(raw_response)
+        review_data = json.loads(raw_response)
 
-            review_data = json.loads(raw_response)
+        return review_data
 
-            return review_data
+    except Exception as e:
 
-        except Exception as e:
+        print(
+            "Gemini API Error:",
+            repr(e)
+        )
 
-            print(
-                f"Gemini API Error "
-                f"(Attempt {attempt + 1}):",
-                repr(e)
-            )
-
-            if attempt < 2:
-
-                time.sleep(5)
-
-            else:
-
-                return {
-                    "summary": (
-                        "AI review could not be generated."
-                    ),
-                    "what_code_does": "",
-                    "issues": [],
-                    "best_practices": [],
-                    "improved_code": "",
-                    "score": 0,
-                    "severity": "Critical"
-                }
+        return {
+            "summary": (
+                "AI review could not be generated."
+            ),
+            "what_code_does": "",
+            "issues": [],
+            "best_practices": [],
+            "improved_code": "",
+            "score": 0,
+            "severity": "Critical"
+        }
