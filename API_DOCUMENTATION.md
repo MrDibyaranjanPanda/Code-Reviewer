@@ -4,13 +4,9 @@
 
 The AI Code Review Assistant backend provides REST APIs for user authentication, project management, Python file uploads, automated code analysis, review retrieval, PDF report generation, and dashboard statistics.
 
-### Base URL
+## Base URL
 
-```text
-http://127.0.0.1:5000
-```
-
-> Replace the base URL with the deployed backend URL when the application is deployed.
+https://code-reviewer-backend-9idm.onrender.com
 
 ---
 
